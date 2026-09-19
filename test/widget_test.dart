@@ -9,7 +9,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('shows the app bar, disclaimer, and all four tabs', (tester) async {
+  testWidgets('shows the app bar, disclaimer, and all five tabs', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: DoseGlucoseApp()));
     await tester.pump();
 
@@ -18,6 +18,7 @@ void main() {
     expect(find.text('Bolus'), findsWidgets);
     expect(find.text('Basal'), findsWidgets);
     expect(find.text('Glucose'), findsWidgets);
+    expect(find.text('Labels'), findsWidgets);
     expect(find.text('Settings'), findsWidgets);
   });
 
@@ -25,7 +26,7 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: DoseGlucoseApp()));
     await tester.pump();
 
-    for (final label in ['Basal', 'Glucose', 'Settings', 'Bolus']) {
+    for (final label in ['Basal', 'Glucose', 'Labels', 'Settings', 'Bolus']) {
       await tester.tap(find.text(label).last);
       await tester.pump();
     }

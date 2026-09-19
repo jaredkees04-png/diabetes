@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../domain/models/bolus_calculation.dart';
+import '../food_label/food_label_list_screen.dart';
 
 class BolusScreen extends ConsumerStatefulWidget {
   const BolusScreen({super.key});
@@ -21,6 +22,17 @@ class _BolusScreenState extends ConsumerState<BolusScreen> {
     _carbsController.dispose();
     _glucoseController.dispose();
     super.dispose();
+  }
+
+  Future<void> _scanFoodLabel() async {
+    final carbs = await Navigator.push<double>(
+      context,
+      MaterialPageRoute(builder: (_) => const FoodLabelListScreen(pickerMode: true)),
+    );
+    if (carbs != null) {
+      _carbsController.text = carbs.toStringAsFixed(1);
+      _calculate();
+    }
   }
 
   void _calculate() {
@@ -61,9 +73,14 @@ class _BolusScreenState extends ConsumerState<BolusScreen> {
               TextField(
                 controller: _carbsController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Carbs (g)',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.camera_alt_outlined),
+                    tooltip: 'Use a saved food label',
+                    onPressed: _scanFoodLabel,
+                  ),
                 ),
                 onChanged: (_) => _calculate(),
               ),
