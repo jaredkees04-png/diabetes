@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/constants/theme_colors.dart';
 import 'home_shell.dart';
 
 class DoseGlucoseApp extends StatelessWidget {
@@ -11,21 +12,21 @@ class DoseGlucoseApp extends StatelessWidget {
       title: 'Dose & Glucose Log',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        colorScheme: ColorScheme.fromSeed(seedColor: kSeedColor),
         useMaterial3: true,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF00695C),
+          backgroundColor: kSeedColor,
           foregroundColor: Colors.white,
         ),
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.teal,
+          seedColor: kSeedColor,
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF00695C),
+          backgroundColor: kSeedColor,
           foregroundColor: Colors.white,
         ),
       ),
