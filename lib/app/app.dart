@@ -13,6 +13,10 @@ class DoseGlucoseApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF00695C),
+          foregroundColor: Colors.white,
+        ),
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -20,6 +24,10 @@ class DoseGlucoseApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF00695C),
+          foregroundColor: Colors.white,
+        ),
       ),
       home: const HomeShell(),
     );
