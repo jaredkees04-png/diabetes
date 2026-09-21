@@ -26,17 +26,18 @@ class _HomeShellState extends State<HomeShell> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) showDisclaimerDialog(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Dose & Glucose Log')),
-      body: Column(
-        children: [
-          const DisclaimerBanner(),
-          Expanded(
-            child: IndexedStack(index: _tabIndex, children: _screens),
-          ),
-        ],
-      ),
+      body: IndexedStack(index: _tabIndex, children: _screens),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tabIndex,
         onDestinationSelected: (index) => setState(() => _tabIndex = index),
