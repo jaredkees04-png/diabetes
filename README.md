@@ -1,7 +1,12 @@
 # Dose & Glucose Log
 
-A personal, on-device diabetes management tool built with Flutter. Five screens:
+A personal, on-device diabetes management tool built with Flutter. Six screens:
 
+- **Home** — a quick-glance dashboard: your latest glucose reading (flagged
+  if high/low), today's basal total, readings/average/high-low counts for
+  today, and a merged recent-activity feed of your basal and glucose logs.
+  Nothing here is stored separately — it's all computed on the fly from
+  the same logs the Basal and Glucose screens write to.
 - **Bolus** — enter carbs and current glucose; calculates
   `dose = (carbs ÷ insulin-to-carb ratio) + (glucose − target) ÷ correction factor`,
   rounded to your configured increment. Shows the full breakdown, not just
@@ -34,7 +39,7 @@ processes is never uploaded anywhere; the OCR runs locally in-browser.
 
 > This app only does arithmetic on values your doctor prescribed. It is
 > not medical advice — always use your own judgment and consult your
-> care team. A persistent disclaimer is shown on every screen.
+> care team. This disclaimer is shown as a dialog each time the app opens.
 
 ## Development
 
