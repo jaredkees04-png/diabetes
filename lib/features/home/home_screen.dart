@@ -11,11 +11,52 @@ import '../../domain/models/glucose_entry.dart';
 import '../../domain/services/dashboard_stats_calculator.dart';
 import '../../widgets/activity_tile.dart';
 import '../../widgets/stat_tile.dart';
+import '../history/history_screen.dart';
 
 const _calculator = DashboardStatsCalculator();
 
-class HomeScreen extends ConsumerWidget {
+/// The Home tab: a "Today" quick-glance dashboard, with a toggle at the
+/// top to switch to the History tab's day/week/month browsing without
+/// needing its own slot in the bottom nav.
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _showHistory = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: SegmentedButton<bool>(
+            segments: const [
+              ButtonSegment(value: false, label: Text('Today')),
+              ButtonSegment(value: true, label: Text('History')),
+            ],
+            selected: {_showHistory},
+            onSelectionChanged: (selection) =>
+                setState(() => _showHistory = selection.first),
+          ),
+        ),
+        Expanded(
+          child: IndexedStack(
+            index: _showHistory ? 1 : 0,
+            children: const [_TodayView(), HistoryScreen()],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TodayView extends ConsumerWidget {
+  const _TodayView();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

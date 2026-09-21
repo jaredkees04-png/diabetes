@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -100,18 +100,22 @@ void main() {
     expect(find.textContaining('not medical advice'), findsNothing);
   });
 
-  testWidgets('shows the app bar and all seven tabs', (tester) async {
+  testWidgets('shows the app bar, five bottom tabs, and a gear icon for settings', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: DoseGlucoseApp()));
     await _dismissDisclaimer(tester);
 
     expect(find.text('Dose & Glucose Log'), findsWidgets);
     expect(find.text('Home'), findsWidgets);
-    expect(find.text('History'), findsWidgets);
     expect(find.text('Bolus'), findsWidgets);
     expect(find.text('Basal'), findsWidgets);
     expect(find.text('Glucose'), findsWidgets);
     expect(find.text('Labels'), findsWidgets);
-    expect(find.text('Settings'), findsWidgets);
+    expect(find.text('Settings'), findsNothing);
+    expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
+
+    // The Today/History toggle lives at the top of the Home tab itself.
+    expect(find.text('Today'), findsOneWidget);
+    expect(find.text('History'), findsOneWidget);
   });
 
   testWidgets('Home tab shows empty state with no data logged', (tester) async {
@@ -138,17 +142,17 @@ void main() {
     expect(find.text('4.50 units basal'), findsOneWidget); // recent activity row
   });
 
-  testWidgets('History tab (Day view) shows empty state with no data logged', (tester) async {
+  testWidgets('History toggle (Day view) shows empty state with no data logged', (tester) async {
     await tester.pumpWidget(_appWithData());
     await _dismissDisclaimer(tester);
 
-    await tester.tap(find.text('History').last);
+    await tester.tap(find.text('History'));
     await tester.pumpAndSettle();
 
     expect(find.text('Nothing logged this day.'), findsOneWidget);
   });
 
-  testWidgets('History tab (Day view) shows entries logged today', (tester) async {
+  testWidgets('History toggle (Day view) shows entries logged today', (tester) async {
     final now = DateTime.now();
     await tester.pumpWidget(
       _appWithData(
@@ -169,7 +173,7 @@ void main() {
     );
     await _dismissDisclaimer(tester);
 
-    await tester.tap(find.text('History').last);
+    await tester.tap(find.text('History'));
     await tester.pumpAndSettle();
 
     expect(find.text('6.0 u'), findsOneWidget); // total basal stat tile
@@ -179,11 +183,11 @@ void main() {
     expect(find.text('65 mg/dL'), findsWidgets);
   });
 
-  testWidgets('History tab switches to a day-by-day breakdown for Week/Month', (tester) async {
+  testWidgets('History toggle switches to a day-by-day breakdown for Week/Month', (tester) async {
     await tester.pumpWidget(_appWithData());
     await _dismissDisclaimer(tester);
 
-    await tester.tap(find.text('History').last);
+    await tester.tap(find.text('History'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Week'));
@@ -199,9 +203,22 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: DoseGlucoseApp()));
     await _dismissDisclaimer(tester);
 
-    for (final label in ['History', 'Bolus', 'Basal', 'Glucose', 'Labels', 'Settings', 'Home']) {
+    for (final label in ['Bolus', 'Basal', 'Glucose', 'Labels', 'Home']) {
       await tester.tap(find.text(label).last);
       await tester.pump();
     }
+
+    // The Home tab's Today/History toggle.
+    await tester.tap(find.text('History'));
+    await tester.pump();
+    await tester.tap(find.text('Today'));
+    await tester.pump();
+
+    // Settings is a pushed screen off the gear icon, not a bottom tab.
+    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.pumpAndSettle();
+    expect(find.text('Settings'), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
   });
 }
