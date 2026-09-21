@@ -18,7 +18,14 @@ class BasalScreen extends ConsumerStatefulWidget {
 
 class _BasalScreenState extends ConsumerState<BasalScreen> {
   final _unitsController = TextEditingController();
-  DateTime _timestamp = DateTime.now();
+
+  // Null means "not pinned to a specific time" — defaults to the live
+  // current time. This screen's State is kept alive for the app's entire
+  // lifetime (HomeShell uses IndexedStack), so a plain `DateTime.now()`
+  // field would freeze at whatever moment the app launched and, if never
+  // touched, log a stale timestamp on the next entry.
+  DateTime? _pinnedTimestamp;
+  DateTime get _timestamp => _pinnedTimestamp ?? DateTime.now();
 
   @override
   void dispose() {
@@ -40,7 +47,7 @@ class _BasalScreenState extends ConsumerState<BasalScreen> {
     );
     if (time == null) return;
     setState(() {
-      _timestamp = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      _pinnedTimestamp = DateTime(date.year, date.month, date.day, time.hour, time.minute);
     });
   }
 
@@ -52,7 +59,7 @@ class _BasalScreenState extends ConsumerState<BasalScreen> {
           BasalEntry(id: _uuid.v4(), units: units, timestamp: _timestamp),
         );
     _unitsController.clear();
-    setState(() => _timestamp = DateTime.now());
+    setState(() => _pinnedTimestamp = null);
   }
 
   @override

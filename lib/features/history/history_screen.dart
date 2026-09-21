@@ -29,7 +29,14 @@ class HistoryScreen extends ConsumerStatefulWidget {
 
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   StatsPeriod _period = StatsPeriod.day;
-  DateTime _anchor = DateTime.now();
+
+  // Null means "not pinned to a specific date" — the History tab tracks
+  // the live current date. The tab's State is kept alive for the app's
+  // entire lifetime (HomeShell uses IndexedStack), so a plain
+  // `DateTime.now()` field would freeze at whatever moment the app
+  // launched and go stale across a midnight rollover.
+  DateTime? _pinnedAnchor;
+  DateTime get _anchor => _pinnedAnchor ?? DateTime.now();
 
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
@@ -38,21 +45,21 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     );
-    if (picked != null) setState(() => _anchor = picked);
+    if (picked != null) setState(() => _pinnedAnchor = picked);
   }
 
   void _shift(int direction) {
-    setState(() => _anchor = shiftAnchor(_period, _anchor, direction));
+    setState(() => _pinnedAnchor = shiftAnchor(_period, _anchor, direction));
   }
 
   void _goToToday() {
-    setState(() => _anchor = DateTime.now());
+    setState(() => _pinnedAnchor = null);
   }
 
   void _openDay(DateTime day) {
     setState(() {
       _period = StatsPeriod.day;
-      _anchor = day;
+      _pinnedAnchor = day;
     });
   }
 
