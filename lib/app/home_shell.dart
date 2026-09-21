@@ -4,6 +4,7 @@ import '../features/basal/basal_screen.dart';
 import '../features/bolus/bolus_screen.dart';
 import '../features/food_label/food_label_list_screen.dart';
 import '../features/glucose/glucose_screen.dart';
+import '../features/history/history_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../widgets/disclaimer_banner.dart';
@@ -20,6 +21,7 @@ class _HomeShellState extends State<HomeShell> {
 
   static const _screens = [
     HomeScreen(),
+    HistoryScreen(),
     BolusScreen(),
     BasalScreen(),
     GlucoseScreen(),
@@ -45,6 +47,7 @@ class _HomeShellState extends State<HomeShell> {
         onDestinationSelected: (index) => setState(() => _tabIndex = index),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
+          NavigationDestination(icon: Icon(Icons.calendar_month_outlined), label: 'History'),
           NavigationDestination(icon: Icon(Icons.calculate_outlined), label: 'Bolus'),
           NavigationDestination(icon: Icon(Icons.schedule_outlined), label: 'Basal'),
           NavigationDestination(icon: Icon(Icons.bloodtype_outlined), label: 'Glucose'),

@@ -10,7 +10,7 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 /// sqflite has no web implementation at all.
 class AppDatabase {
   static const _dbName = 'dose_glucose_log.db';
-  static const _dbVersion = 2;
+  static const _dbVersion = 3;
 
   Database? _db;
 
@@ -50,11 +50,15 @@ class AppDatabase {
       )
     ''');
     await _createFoodLabelsTable(db);
+    await _createBolusEntriesTable(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await _createFoodLabelsTable(db);
+    }
+    if (oldVersion < 3) {
+      await _createBolusEntriesTable(db);
     }
   }
 
@@ -68,6 +72,20 @@ class AppDatabase {
         sugars_per_serving REAL,
         image_bytes BLOB NOT NULL,
         created_at INTEGER NOT NULL
+      )
+    ''');
+  }
+
+  Future<void> _createBolusEntriesTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE bolus_entries (
+        id TEXT PRIMARY KEY,
+        carbs_grams REAL NOT NULL,
+        glucose_at_time REAL NOT NULL,
+        carb_dose REAL NOT NULL,
+        correction_dose REAL NOT NULL,
+        rounded_dose REAL NOT NULL,
+        timestamp INTEGER NOT NULL
       )
     ''');
   }

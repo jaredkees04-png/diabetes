@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/database/app_database.dart';
 import '../data/ocr/label_ocr_service.dart';
 import '../data/repositories/basal_repository.dart';
+import '../data/repositories/bolus_repository.dart';
 import '../data/repositories/food_label_repository.dart';
 import '../data/repositories/glucose_repository.dart';
 import '../data/repositories/settings_repository.dart';
 import '../domain/models/basal_entry.dart';
+import '../domain/models/bolus_entry.dart';
 import '../domain/models/dose_settings.dart';
 import '../domain/models/food_label.dart';
 import '../domain/models/glucose_entry.dart';
@@ -33,6 +35,10 @@ final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
 
 final bolusCalculatorProvider = Provider<BolusCalculator>((ref) {
   return const BolusCalculator();
+});
+
+final bolusRepositoryProvider = Provider<BolusRepository>((ref) {
+  return BolusRepository(ref.watch(appDatabaseProvider));
 });
 
 final foodLabelRepositoryProvider = Provider<FoodLabelRepository>((ref) {
@@ -97,6 +103,39 @@ class BasalEntriesNotifier extends StateNotifier<AsyncValue<List<BasalEntry>>> {
   }
 
   Future<void> add(BasalEntry entry) async {
+    await _repository.insert(entry);
+    await _load();
+  }
+
+  Future<void> remove(String id) async {
+    await _repository.delete(id);
+    await _load();
+  }
+}
+
+final bolusEntriesProvider =
+    StateNotifierProvider<BolusEntriesNotifier, AsyncValue<List<BolusEntry>>>((ref) {
+  return BolusEntriesNotifier(ref.watch(bolusRepositoryProvider));
+});
+
+class BolusEntriesNotifier extends StateNotifier<AsyncValue<List<BolusEntry>>> {
+  BolusEntriesNotifier(this._repository) : super(const AsyncValue.loading()) {
+    _load();
+  }
+
+  final BolusRepository _repository;
+
+  Future<void> _load() async {
+    state = const AsyncValue.loading();
+    try {
+      final entries = await _repository.getAll();
+      state = AsyncValue.data(entries);
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+    }
+  }
+
+  Future<void> add(BolusEntry entry) async {
     await _repository.insert(entry);
     await _load();
   }

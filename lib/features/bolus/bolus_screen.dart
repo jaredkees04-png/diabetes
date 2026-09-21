@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../app/providers.dart';
 import '../../domain/models/bolus_calculation.dart';
+import '../../domain/models/bolus_entry.dart';
 import '../food_label/food_label_list_screen.dart';
+
+const _uuid = Uuid();
 
 class BolusScreen extends ConsumerStatefulWidget {
   const BolusScreen({super.key});
@@ -16,6 +20,7 @@ class _BolusScreenState extends ConsumerState<BolusScreen> {
   final _carbsController = TextEditingController();
   final _glucoseController = TextEditingController();
   BolusCalculation? _result;
+  bool _logged = false;
 
   @override
   void dispose() {
@@ -54,7 +59,32 @@ class _BolusScreenState extends ConsumerState<BolusScreen> {
         currentGlucose: glucose,
         settings: settings,
       );
+      _logged = false;
     });
+  }
+
+  Future<void> _logDose() async {
+    final result = _result;
+    final glucose = double.tryParse(_glucoseController.text);
+    if (result == null || glucose == null) return;
+
+    await ref.read(bolusEntriesProvider.notifier).add(
+          BolusEntry(
+            id: _uuid.v4(),
+            carbsGrams: double.tryParse(_carbsController.text) ?? 0,
+            glucoseAtTime: glucose,
+            carbDose: result.carbDose,
+            correctionDose: result.correctionDose,
+            roundedDose: result.roundedDose,
+            timestamp: DateTime.now(),
+          ),
+        );
+
+    if (!mounted) return;
+    setState(() => _logged = true);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Dose logged.')),
+    );
   }
 
   @override
@@ -95,7 +125,18 @@ class _BolusScreenState extends ConsumerState<BolusScreen> {
                 onChanged: (_) => _calculate(),
               ),
               const SizedBox(height: 20),
-              if (_result != null) _BolusResultCard(result: _result!),
+              if (_result != null) ...[
+                _BolusResultCard(result: _result!),
+                const SizedBox(height: 12),
+                if (_logged)
+                  const _LoggedIndicator()
+                else
+                  FilledButton.icon(
+                    onPressed: _result!.suggestsNoBolus ? null : _logDose,
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: const Text('Log this dose'),
+                  ),
+              ],
             ],
           ),
         );
@@ -161,6 +202,30 @@ class _BolusResultCard extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _LoggedIndicator extends StatelessWidget {
+  const _LoggedIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.check_circle, color: colorScheme.onPrimaryContainer, size: 18),
+          const SizedBox(width: 8),
+          Text('Dose logged', style: TextStyle(color: colorScheme.onPrimaryContainer)),
+        ],
       ),
     );
   }

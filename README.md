@@ -1,18 +1,26 @@
 # Dose & Glucose Log
 
-A personal, on-device diabetes management tool built with Flutter. Six screens:
+A personal, on-device diabetes management tool built with Flutter. Seven screens:
 
 - **Home** — a quick-glance dashboard: your latest glucose reading (flagged
-  if high/low), today's basal total, readings/average/high-low counts for
-  today, and a merged recent-activity feed of your basal and glucose logs.
-  Nothing here is stored separately — it's all computed on the fly from
-  the same logs the Basal and Glucose screens write to.
+  if high/low), today's basal and bolus totals, readings/average/high-low
+  counts for today, and a merged recent-activity feed of your basal, bolus,
+  and glucose logs. Nothing here is stored separately — it's all computed
+  on the fly from the same logs the Basal, Bolus, and Glucose screens
+  write to.
+- **History** — browse your logs by day, week, or month. Each period shows
+  aggregate stats (total basal, total bolus, reading count/average,
+  high/low count). Day view lists every entry logged that day; Week and
+  Month views show a day-by-day breakdown you can tap into to jump
+  straight to that day. Step forward/back a period at a time, jump back
+  to today, or use the date picker to go straight to any day.
 - **Bolus** — enter carbs and current glucose; calculates
   `dose = (carbs ÷ insulin-to-carb ratio) + (glucose − target) ÷ correction factor`,
   rounded to your configured increment. Shows the full breakdown, not just
   the final number, and warns when glucose is below target or when no
   bolus is indicated. Carbs can also be pulled in from a saved food label
-  (see below) via the camera icon on the Carbs field.
+  (see below) via the camera icon on the Carbs field. Once you've
+  administered the dose, "Log this dose" saves it to your history.
 - **Basal** — log units + timestamp.
 - **Glucose** — log a reading + timestamp + optional note; flags readings
   ≤70 or ≥180.
@@ -26,9 +34,9 @@ A personal, on-device diabetes management tool built with Flutter. Six screens:
   and dose-rounding increment (0.1 / 0.5 / 1 unit).
 
 All data is stored locally on-device only:
-- Basal, glucose, and food-label entries (including label photos) use
-  `sqflite` — on web, via `sqflite_common_ffi_web`, which stores into the
-  browser's IndexedDB rather than a native sqlite file.
+- Basal, bolus, glucose, and food-label entries (including label photos)
+  use `sqflite` — on web, via `sqflite_common_ffi_web`, which stores into
+  the browser's IndexedDB rather than a native sqlite file.
 - Settings use `shared_preferences`.
 
 There is no network layer for your data and no cloud sync anywhere in
